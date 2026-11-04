@@ -1,0 +1,7 @@
+{
+  "name": "Mantine Admin CI",
+  "description": "Organization quality gate: secrets scan, lint, typecheck, test, build (pnpm + Turborepo) and workflow linting.",
+  "iconName": "octicon checklist",
+  "categories": ["TypeScript", "JavaScript"],
+  "filePatterns": ["pnpm-lock.yaml$", "turbo.json$"]
+}

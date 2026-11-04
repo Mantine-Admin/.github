@@ -1,0 +1,27 @@
+# Reusable linter for GitHub Actions workflows (syntax with actionlint, security with zizmor).
+# Provides the required check "workflow-lint / lint" when called from a job with id `workflow-lint`.
+name: Reusable workflow lint
+
+on:
+  workflow_call: {}
+
+permissions: {}
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: actionlint
+        run: docker run --rm -v "${PWD}:/repo:ro" --workdir /repo rhysd/actionlint:1.7.12 -color
+
+      - name: zizmor
+        run: pipx run zizmor==1.32.0 --offline --format=github .

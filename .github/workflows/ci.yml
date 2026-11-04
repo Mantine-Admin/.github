@@ -1,0 +1,58 @@
+# CI for the .github repository itself. Provides the required checks
+# "validate" and "workflow-lint / lint" (see rulesets/required-checks-governance.json).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate rulesets
+        run: |
+          status=0
+          for f in rulesets/*.json; do
+            if ! jq -e '.name and .target and .enforcement and (.rules | length > 0)' "$f" >/dev/null; then
+              echo "::error file=$f::Invalid ruleset (name, target, enforcement and rules are required)"
+              status=1
+            fi
+          done
+          dupes="$(jq -r '.name' rulesets/*.json | sort | uniq -d)"
+          if [ -n "$dupes" ]; then echo "::error::Duplicate ruleset names: $dupes"; status=1; fi
+          exit "$status"
+
+      - name: Validate YAML files
+        run: |
+          for f in .github/ISSUE_TEMPLATE/*.yml .github/dependabot.yml workflow-templates/*.yml; do
+            yq '.' "$f" >/dev/null || { echo "::error file=$f::Invalid YAML"; exit 1; }
+          done
+          for f in workflow-templates/*.json; do jq -e . "$f" >/dev/null; done
+
+      - name: Lint shell scripts
+        run: shellcheck scripts/*.sh
+
+      - name: Scan for secrets
+        run: docker run --rm -v "${PWD}:/repo:ro" ghcr.io/gitleaks/gitleaks:v8.30.1 dir /repo --redact --no-banner
+
+  workflow-lint:
+    uses: ./.github/workflows/reusable-workflow-lint.yml # zizmor: ignore[self-repository]
+    permissions:
+      contents: read

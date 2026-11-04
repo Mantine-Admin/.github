@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [$default-branch]
+  merge_group:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Keep these job ids: they produce the required checks
+  # "quality / quality" and "workflow-lint / lint".
+  quality:
+    uses: Mantine-Admin/.github/.github/workflows/reusable-quality.yml@main
+    permissions:
+      contents: read
+    with:
+      affected: ${{ github.event_name == 'pull_request' }}
+
+  workflow-lint:
+    uses: Mantine-Admin/.github/.github/workflows/reusable-workflow-lint.yml@main
+    permissions:
+      contents: read

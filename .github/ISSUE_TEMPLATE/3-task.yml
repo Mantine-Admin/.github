@@ -1,0 +1,57 @@
+name: 🧩 Task (maintainers)
+description: A scoped unit of work for a maintainer or an agent. Maintainers only; other issues may be closed.
+type: Task
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write tasks so that an agent can deliver them without guessing.
+        One task = one pull request. If it needs more, split it.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why this work is needed, with links to discussions, ADRs or related issues.
+    validations:
+      required: true
+  - type: textarea
+    id: what-to-do
+    attributes:
+      label: What to do
+      description: The expected change. Name the packages and files involved when you know them.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Verifiable criteria. Each one should map to a test or a check.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Expected risk class
+      description: See GOVERNANCE.md. The final class is computed from the PR diff.
+      options:
+        - R0 – docs, tests, internal tooling
+        - R1 – internal change, no public API change
+        - R2 – public API, new dependency, build config
+        - R3 – governance, workflows, release, security
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: Optional. What must not be changed.
+  - type: checkboxes
+    id: agent
+    attributes:
+      label: Assignment
+      options:
+        - label: This task can be delegated to an agent.

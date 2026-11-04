@@ -1,0 +1,30 @@
+name: 📚 Documentation issue
+description: Report a mistake, missing information or unclear wording in the documentation.
+type: Bug
+labels: ["documentation"]
+body:
+  - type: input
+    id: link
+    attributes:
+      label: Page
+      description: Link to the page or file that needs a fix.
+      placeholder: https://...
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: Optional.
+  - type: checkboxes
+    id: self-service
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd be willing to open a pull request to fix this.

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💡 Feature request
+    url: https://github.com/orgs/Mantine-Admin/discussions/new?category=ideas
+    about: Suggest a new feature or an API change in Discussions.
+  - name: 🤔 Question or help
+    url: https://github.com/orgs/Mantine-Admin/discussions/new?category=q-a
+    about: Ask questions and share your project in Discussions.
+  - name: 🔒 Security vulnerability
+    url: https://github.com/Mantine-Admin/.github/blob/main/SECURITY.md
+    about: Never report vulnerabilities publicly. Follow the security policy.
