@@ -19,6 +19,9 @@ then apply it with [`scripts/apply-rulesets.sh`](../scripts/apply-rulesets.sh).
   Keep the caller job ids `quality` and `workflow-lint` from the workflow template, or the checks will never match.
 - **Required checks must always run.** Never put `paths` filters on a workflow that provides a required check;
   skip work inside the job instead.
+- **`~ALL` rulesets never exclude repositories.** GitHub refuses `"protected": true` with `~ALL`, so renaming
+  a repository into an excluded name would escape the rule. Need an exception? Create a dedicated ruleset.
+  Rulesets that target named repositories always set `"protected": true`. CI enforces both rules.
 - `integration_id: 15368` is GitHub Actions: a status with the same name from another app doesn't satisfy the check.
 - **Add a repository** to a required-checks file when its CI is in place, not before:
   a required check that never runs blocks every PR.

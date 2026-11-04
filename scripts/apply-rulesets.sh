@@ -34,9 +34,10 @@ for cmd in gh jq; do
 done
 
 # Keep only the fields we manage, sorted, to compare local and remote.
+# GitHub ignores actor_id for OrganizationAdmin and DeployKey (it returns null).
 normalize() {
   jq -S 'if .conditions.repository_name.protected == false then del(.conditions.repository_name.protected) else . end
-    | {name, target, enforcement, conditions, bypass_actors: (.bypass_actors // [] | sort_by(.actor_type, .actor_id)), rules: (.rules | sort_by(.type))}'
+    | {name, target, enforcement, conditions, bypass_actors: (.bypass_actors // [] | map(if .actor_type == "OrganizationAdmin" or .actor_type == "DeployKey" then del(.actor_id) else . end) | sort_by(.actor_type, .actor_id)), rules: (.rules | sort_by(.type))}'
 }
 
 existing="$(gh api --paginate "orgs/${ORG}/rulesets" --jq '.[] | {id, name}' | jq -s '.')"
