@@ -41,6 +41,11 @@ jobs:
               echo "::error file=$f::Rulesets targeting ~ALL repositories must not exclude repositories. Create a dedicated ruleset instead."
               status=1
             fi
+            # GitHub rejects "protected": true with ~ALL (HTTP 422): catch it here instead of at apply time.
+            if jq -e '.conditions.repository_name | select(.include | index("~ALL")) | (.protected == true)' "$f" >/dev/null; then
+              echo "::error file=$f::Rulesets targeting ~ALL repositories must not set \"protected\": true (rejected by the GitHub API)."
+              status=1
+            fi
             # A ruleset targeting named repositories must block renames that would escape it.
             if jq -e '.conditions.repository_name | select(.include | index("~ALL") | not) | (.protected != true)' "$f" >/dev/null; then
               echo "::error file=$f::Rulesets targeting named repositories must set \"protected\": true."
