@@ -35,6 +35,18 @@ jobs:
               status=1
             fi
           done
+          for f in rulesets/*.json; do
+            # A ~ALL ruleset can't use "protected", so any exclude could be escaped by renaming a repository.
+            if jq -e '.conditions.repository_name | select(.include | index("~ALL")) | (.exclude | length > 0)' "$f" >/dev/null; then
+              echo "::error file=$f::Rulesets targeting ~ALL repositories must not exclude repositories. Create a dedicated ruleset instead."
+              status=1
+            fi
+            # A ruleset targeting named repositories must block renames that would escape it.
+            if jq -e '.conditions.repository_name | select(.include | index("~ALL") | not) | (.protected != true)' "$f" >/dev/null; then
+              echo "::error file=$f::Rulesets targeting named repositories must set \"protected\": true."
+              status=1
+            fi
+          done
           dupes="$(jq -r '.name' rulesets/*.json | sort | uniq -d)"
           if [ -n "$dupes" ]; then echo "::error::Duplicate ruleset names: $dupes"; status=1; fi
           exit "$status"
