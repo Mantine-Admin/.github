@@ -14,6 +14,9 @@
 
 set -euo pipefail
 
+# Print API errors directly instead of opening them in a pager.
+export GH_PAGER=""
+
 ORG="${ORG:-Mantine-Admin}"
 MODE="plan"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -32,7 +35,8 @@ done
 
 # Keep only the fields we manage, sorted, to compare local and remote.
 normalize() {
-  jq -S '{name, target, enforcement, conditions, bypass_actors: (.bypass_actors // [] | sort_by(.actor_type, .actor_id)), rules: (.rules | sort_by(.type))}'
+  jq -S 'if .conditions.repository_name.protected == false then del(.conditions.repository_name.protected) else . end
+    | {name, target, enforcement, conditions, bypass_actors: (.bypass_actors // [] | sort_by(.actor_type, .actor_id)), rules: (.rules | sort_by(.type))}'
 }
 
 existing="$(gh api --paginate "orgs/${ORG}/rulesets" --jq '.[] | {id, name}' | jq -s '.')"
